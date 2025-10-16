@@ -1,8 +1,11 @@
+from django.contrib.auth.models import User
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.views import APIView
-from django.contrib.auth.models import User
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
 
 from .serializers import UserProfileSerializer, RegistrationSerializer
 
@@ -14,7 +17,7 @@ class UserProfileDetail():
     pass
 
 class RegistrationView(APIView):
-    # Allow any user (authenticated or not) to access this url
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
@@ -22,9 +25,9 @@ class RegistrationView(APIView):
 
         if serializer.is_valid():
             saved_account = serializer.save()
-            # add auth token generation later
+            token = Token.objects.create(user=saved_account)
             data = {
-                # 'token': '', # Token generation logic to be added
+                'token': token.key,
                 'fullname': saved_account.username,
                 'email': saved_account.email,
                 'user_id': saved_account.id,
