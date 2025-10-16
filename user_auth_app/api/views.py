@@ -2,22 +2,22 @@ from django.contrib.auth.models import User
 
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
+from rest_framework.viewsets import ModelViewSet
 
-from .serializers import UserProfileDetailSerializer, UserProfileSerializer, RegistrationSerializer, LoginSerializer
+from .serializers import UserProfileSerializer, RegistrationSerializer, LoginSerializer
 
-class UserProfileListView(generics.ListAPIView):
+class UserProfileListView(ModelViewSet):
     permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
 
-class UserProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
+class UserProfileDetailView(ModelViewSet):
     permission_classes = [AllowAny]
     queryset = User.objects.all()
-    serializer_class = UserProfileDetailSerializer
+    serializer_class = UserProfileSerializer
 
 class RegistrationView(APIView):
     permission_classes = [AllowAny]
