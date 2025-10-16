@@ -7,14 +7,14 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 
-from .serializers import UserProfileDetailSerializer, UserProfileSerializer, RegistrationSerializer
+from .serializers import UserProfileDetailSerializer, UserProfileSerializer, RegistrationSerializer, LoginSerializer
 
-class UserProfileList(generics.ListAPIView):
+class UserProfileListView(generics.ListAPIView):
     permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
 
-class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
+class UserProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserProfileDetailSerializer
@@ -36,6 +36,27 @@ class RegistrationView(APIView):
                 'user_id': saved_account.id,
             }
             return Response(data, status=status.HTTP_201_CREATED)
+        
+        else:
+            return Response(serializer.errors)
+        
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        data = {}
+
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            token, created = Token.objects.get_or_create(user=user)
+            data = {
+                'token': token.key,
+                'fullname': user.username,
+                'email': user.email,
+                'user_id': user.id,
+            }
+            return Response(data, status=status.HTTP_200_OK)
         
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

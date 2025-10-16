@@ -79,3 +79,29 @@ class RegistrationSerializer(serializers.ModelSerializer):
         account.save()
 
         return account
+    
+class LoginSerializer(serializers.Serializer):
+    permission_classes = [AllowAny]
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        email = data.get('email')
+        password = data.get('password')
+
+        if not email or email.strip() == '':
+            raise serializers.ValidationError({'email': 'Email is required!'})
+
+        if not password or password.strip() == '':
+            raise serializers.ValidationError({'password': 'Password is required!'})
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError({'error': 'User does not exist!'})
+
+        if not user.check_password(password):
+            raise serializers.ValidationError({'error': 'Invalid credentials!'})
+
+        data['user'] = user
+        return data
