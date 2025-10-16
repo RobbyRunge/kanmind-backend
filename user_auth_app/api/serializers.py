@@ -1,25 +1,10 @@
 from django.contrib.auth.models import User
 
-from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny
 from rest_framework import serializers
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    permission_classes = [AllowAny]
-    fullname = serializers.CharField(source='username')
-    token = serializers.SerializerMethodField()
-    class Meta:
-        model = User
-        fields = ['token', 'fullname', 'email', 'id']
-
-    def get_token(self, obj):
-        token, created = Token.objects.get_or_create(user=obj)
-        return token.key
-
-class UserProfileDetailSerializer(serializers.ModelSerializer):
-    permission_classes = [AllowAny]
-    fullname = serializers.CharField(source='username')
+    fullname = serializers.CharField(source='username', read_only=True)
     token = serializers.SerializerMethodField()
 
     class Meta:
@@ -31,7 +16,6 @@ class UserProfileDetailSerializer(serializers.ModelSerializer):
         return token.key
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    permission_classes = [AllowAny]
     repeated_password = serializers.CharField(write_only=True)
     email = serializers.EmailField() 
     fullname = serializers.CharField(
@@ -82,7 +66,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return account
     
 class LoginSerializer(serializers.Serializer):
-    permission_classes = [AllowAny]
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
