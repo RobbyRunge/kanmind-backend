@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework import serializers
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    permission_classes = [AllowAny]
     fullname = serializers.CharField(source='username')
     token = serializers.SerializerMethodField()
     class Meta:

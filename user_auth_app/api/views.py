@@ -10,6 +10,7 @@ from rest_framework.authtoken.models import Token
 from .serializers import UserProfileSerializer, RegistrationSerializer
 
 class UserProfileList(generics.ListAPIView):
+    permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
 
