@@ -3,6 +3,31 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from ..models import Board
+from tasks_app.models import Task
+
+
+class UserSerializer(serializers.ModelSerializer):
+    fullname = serializers.CharField(source='username', read_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'fullname']
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    assignee = UserSerializer(read_only=True)
+    reviewer = UserSerializer(read_only=True)
+    comments_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'description', 'status', 'priority', 
+                  'assignee', 'reviewer', 'due_date', 'comments_count']
+    
+    def get_comments_count(self, obj):
+        # Placeholder: wird implementiert wenn Comments vorhanden sind
+        return 0
+
 
 class BoardListSerializer(serializers.ModelSerializer):
     member_count = serializers.SerializerMethodField()
@@ -20,23 +45,28 @@ class BoardListSerializer(serializers.ModelSerializer):
         return obj.members.count()
 
     def get_ticket_count(self, obj):
-        # Placeholder: wird implementiert wenn Tickets vorhanden sind
-        return 0
+        # Total count aller Tasks
+        return obj.tasks.count()
 
     def get_tasks_to_do_count(self, obj):
-        # Placeholder: wird implementiert wenn Tasks vorhanden sind
-        return 0
+        # Count der Tasks mit Status 'to-do'
+        return obj.tasks.filter(status='to-do').count()
 
     def get_tasks_high_prio_count(self, obj):
-        # Placeholder: wird implementiert wenn High-Priority Tasks vorhanden sind
-        return 0
+        # Count der Tasks mit Priority 'high'
+        return obj.tasks.filter(priority='high').count()
 
 
 class BoardDetailSerializer(serializers.ModelSerializer):
+    """Serializer für Board Details mit Members und Tasks"""
+    owner_id = serializers.IntegerField(source='owner.id', read_only=True)
+    members = UserSerializer(many=True, read_only=True)
+    tasks = TaskSerializer(many=True, read_only=True)
+    
     class Meta:
         model = Board
-        fields = ['id', 'title', 'members', 'owner']
-        read_only_fields = ['owner']
+        fields = ['id', 'title', 'owner_id', 'members', 'tasks']
+        read_only_fields = ['id', 'owner_id']
 
 
 class BoardCreateSerializer(serializers.ModelSerializer):
