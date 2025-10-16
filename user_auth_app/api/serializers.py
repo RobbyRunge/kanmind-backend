@@ -16,6 +16,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key
 
+class UserProfileDetailSerializer(serializers.ModelSerializer):
+    permission_classes = [AllowAny]
+    fullname = serializers.CharField(source='username')
+    token = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['token', 'fullname', 'email', 'id']
+
+    def get_token(self, obj):
+        token, created = Token.objects.get_or_create(user=obj)
+        return token.key
+
 class RegistrationSerializer(serializers.ModelSerializer):
     permission_classes = [AllowAny]
     repeated_password = serializers.CharField(write_only=True)

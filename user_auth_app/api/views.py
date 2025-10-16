@@ -7,15 +7,17 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 
-from .serializers import UserProfileSerializer, RegistrationSerializer
+from .serializers import UserProfileDetailSerializer, UserProfileSerializer, RegistrationSerializer
 
 class UserProfileList(generics.ListAPIView):
     permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
 
-class UserProfileDetail():
-    pass
+class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [AllowAny]
+    queryset = User.objects.all()
+    serializer_class = UserProfileDetailSerializer
 
 class RegistrationView(APIView):
     permission_classes = [AllowAny]
