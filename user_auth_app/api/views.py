@@ -38,7 +38,7 @@ class RegistrationView(APIView):
             return Response(data, status=status.HTTP_201_CREATED)
         
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class LoginView(APIView):
     permission_classes = [AllowAny]
