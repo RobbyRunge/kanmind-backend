@@ -77,3 +77,48 @@ class BoardCreateSerializer(serializers.ModelSerializer):
             board.members.set(users)
         
         return board
+    
+class BoardUpdateSerializer(serializers.ModelSerializer):
+    members = serializers.ListField(
+        child=serializers.IntegerField(),
+        write_only=True,
+        required=False,
+        allow_empty=True
+    )
+
+    class Meta:
+        model = Board
+        fields = ['title', 'members']
+
+    def validate_members(self, value):
+        if value:
+            existing_users = User.objects.filter(id__in=value).values_list('id', flat=True)
+            invalid_ids = set(value) - set(existing_users)
+            if invalid_ids:
+                raise serializers.ValidationError(
+                    f"Invalid user IDs: {', '.join(map(str, invalid_ids))}"
+                )
+        return value
+
+    def update(self, instance, validated_data):
+        member_ids = validated_data.pop('members', None)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        if member_ids is not None and len(member_ids) > 0:
+            users = User.objects.filter(id__in=member_ids)
+            instance.members.set(users)
+        
+        return instance
+
+
+class BoardUpdateResponseSerializer(serializers.ModelSerializer):
+    owner_data = UserSerializer(source='owner', read_only=True)
+    members_data = UserSerializer(source='members', many=True, read_only=True)
+    
+    class Meta:
+        model = Board
+        fields = ['id', 'title', 'owner_data', 'members_data']
+        read_only_fields = ['id', 'owner_data', 'members_data']
