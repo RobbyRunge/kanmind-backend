@@ -5,6 +5,15 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 from rest_framework import serializers
 
+
+class UserSerializer(serializers.ModelSerializer):
+    fullname = serializers.CharField(source='username', read_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'fullname']
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     permission_classes = [AllowAny]
     fullname = serializers.CharField(source='username')
