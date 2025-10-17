@@ -122,3 +122,10 @@ class BoardUpdateResponseSerializer(serializers.ModelSerializer):
         model = Board
         fields = ['id', 'title', 'owner_data', 'members_data']
         read_only_fields = ['id', 'owner_data', 'members_data']
+
+
+class BoardDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Board
+        fields = ['id', 'title']
+        read_only_fields = ['id', 'title']

@@ -7,7 +7,8 @@ from .serializers import (
     BoardDetailSerializer, 
     BoardCreateSerializer,
     BoardUpdateSerializer,
-    BoardUpdateResponseSerializer
+    BoardUpdateResponseSerializer,
+    BoardDeleteSerializer
 )
 from .permissions import IsBoardMember
 
@@ -26,6 +27,8 @@ class BoardViewSet(viewsets.ModelViewSet):
             return BoardDetailSerializer
         elif self.action in ['update', 'partial_update']:
             return BoardUpdateSerializer
+        elif self.action == 'destroy':
+            return BoardDeleteSerializer
         return BoardListSerializer
 
     def get_permissions(self):
@@ -65,3 +68,15 @@ class BoardViewSet(viewsets.ModelViewSet):
         
         response_serializer = BoardUpdateResponseSerializer(board)
         return Response(response_serializer.data, status=status.HTTP_200_OK)
+    
+    def destroy(self, request, *args, **kwargs):
+        if not self.get_object():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        elif not self.get_object().members.filter(id=request.user.id).exists():
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        elif self.get_object().owner != request.user:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
