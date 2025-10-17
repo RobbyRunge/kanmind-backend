@@ -4,7 +4,7 @@ from user_auth_app.api.serializers import UserSerializer
 from tasks_app.models import Task
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class TaskListSerializer(serializers.ModelSerializer):
     assignee = UserSerializer(read_only=True)
     reviewer = UserSerializer(read_only=True)
     comments_count = serializers.SerializerMethodField()

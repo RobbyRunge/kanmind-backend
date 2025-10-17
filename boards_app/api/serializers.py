@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from ..models import Board
 from user_auth_app.api.serializers import UserSerializer
-from tasks_app.api.serializers import TaskSerializer
+from tasks_app.api.serializers import TaskListSerializer
 
 
 class BoardListSerializer(serializers.ModelSerializer):
@@ -38,7 +38,7 @@ class BoardListSerializer(serializers.ModelSerializer):
 class BoardDetailSerializer(serializers.ModelSerializer):
     owner_id = serializers.IntegerField(source='owner.id', read_only=True)
     members = UserSerializer(many=True, read_only=True)
-    tasks = TaskSerializer(many=True, read_only=True)
+    tasks = TaskListSerializer(many=True, read_only=True)
     
     class Meta:
         model = Board
