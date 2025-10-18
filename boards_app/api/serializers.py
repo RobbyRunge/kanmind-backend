@@ -23,15 +23,12 @@ class BoardListSerializer(serializers.ModelSerializer):
         return obj.members.count()
 
     def get_ticket_count(self, obj):
-        # Total count aller Tasks
         return obj.tasks.count()
 
     def get_tasks_to_do_count(self, obj):
-        # Count der Tasks mit Status 'to-do'
         return obj.tasks.filter(status='to-do').count()
 
     def get_tasks_high_prio_count(self, obj):
-        # Count der Tasks mit Priority 'high'
         return obj.tasks.filter(priority='high').count()
 
 
