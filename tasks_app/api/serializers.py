@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from user_auth_app.api.serializers import UserSerializer
-from tasks_app.models import Task
+from tasks_app.models import Task, Comment
 
 
 class TaskListSerializer(serializers.ModelSerializer):
@@ -130,3 +130,26 @@ class TaskDeleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = []
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'created_at', 'author', 'content']
+    
+    def get_author(self, obj):
+        full_name = obj.author.get_full_name()
+        return full_name if full_name.strip() else obj.author.username
+
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['content']
+    
+    def validate_content(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("Content cannot be empty.")
+        return value

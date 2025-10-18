@@ -2,8 +2,14 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from ..models import Task
-from .serializers import TaskListSerializer, TaskCreateSerializer, TaskUpdateSerializer
+from ..models import Task, Comment
+from .serializers import (
+    TaskListSerializer, 
+    TaskCreateSerializer, 
+    TaskUpdateSerializer, 
+    CommentSerializer,
+    CommentCreateSerializer
+)
 from .permissions import IsBoardOwner
 from boards_app.models import Board
 
@@ -92,3 +98,30 @@ class TaskViewSet(viewsets.GenericViewSet):
         task.delete()
         
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=True, methods=['get', 'post'], url_path='comments')
+    def comments(self, request, pk=None):
+        task = self.get_object()
+        
+        if not task.board.members.filter(id=request.user.id).exists():
+            return Response(
+                {'detail': 'You must be a member of the board to access comments.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if request.method == 'GET':
+            comments = task.comments.all()
+            serializer = CommentSerializer(comments, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        elif request.method == 'POST':
+            serializer = CommentCreateSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            
+            comment = serializer.save(
+                task=task,
+                author=request.user
+            )
+            
+            response_serializer = CommentSerializer(comment)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
