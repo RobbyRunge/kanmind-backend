@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from ..models import Task
-from .serializers import TaskListSerializer, TaskCreateSerializer
+from .serializers import TaskListSerializer, TaskCreateSerializer, TaskUpdateSerializer
 from boards_app.models import Board
 
 
@@ -55,3 +55,23 @@ class TaskViewSet(viewsets.GenericViewSet):
         
         response_serializer = TaskListSerializer(task)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+    def partial_update(self, request, *args, **kwargs):
+        # Task holen (404 wenn nicht gefunden)
+        task = self.get_object()
+        
+        # Permission: User muss Board-Member sein
+        if not task.board.members.filter(id=request.user.id).exists():
+            return Response(
+                {'detail': 'You must be a member of the board to update tasks.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Update mit TaskUpdateSerializer
+        serializer = TaskUpdateSerializer(task, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        updated_task = serializer.save()
+        
+        # Response mit nested User-Objekten
+        response_serializer = TaskListSerializer(updated_task)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
