@@ -14,15 +14,17 @@ A Django REST Framework-based backend for a collaborative Kanban board applicati
 
 ## 📋 Table of Contents
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Database Setup](#database-setup)
-- [Running the Server](#running-the-server)
-- [API Documentation](#api-documentation)
-- [Project Structure](#project-structure)
-- [Authentication](#authentication)
-- [Special Features](#special-features)
-- [Contributing](#contributing)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+- [Database Setup](#-database-setup)
+- [Running the Server](#-running-the-server)
+- [API Documentation](#-api-documentation)
+- [Project Structure](#-project-structure)
+- [Authentication](#-authentication)
+- [Special Features](#-special-features)
+- [Troubleshooting](#-troubleshooting)
+- [Development Notes](#-development-notes)
+- [Contributing](#-contributing)
 
 ## 🛠️ Requirements
 
