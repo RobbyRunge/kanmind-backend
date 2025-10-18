@@ -117,3 +117,31 @@ class TaskViewSet(viewsets.GenericViewSet):
 
             response_serializer = CommentSerializer(comment)
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['delete'], url_path='comments/(?P<comment_id>[^/.]+)')
+    def delete_comment(self, request, pk=None, comment_id=None):
+        task = self.get_object()
+
+        try:
+            comment = Comment.objects.get(id=comment_id)
+        except Comment.DoesNotExist:
+            return Response(
+                {'detail': 'Comment not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if comment.task.id != task.id:
+            return Response(
+                {'detail': 'Comment does not belong to this task.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if comment.author != request.user:
+            return Response(
+                {'detail': 'Only the comment author can delete this comment.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        comment.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
