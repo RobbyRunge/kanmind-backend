@@ -17,8 +17,7 @@ class TaskListSerializer(serializers.ModelSerializer):
                   'assignee', 'reviewer', 'due_date', 'comments_count']
 
     def get_comments_count(self, obj):
-        # Placeholder: wird implementiert wenn Comments vorhanden sind
-        return 0
+        return obj.comments.count()
 
 
 class TaskCreateSerializer(serializers.ModelSerializer):
