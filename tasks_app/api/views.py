@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from ..models import Task
 from .serializers import TaskListSerializer, TaskCreateSerializer, TaskUpdateSerializer
+from .permissions import IsBoardOwner
 from boards_app.models import Board
 
 
@@ -50,8 +51,8 @@ class TaskViewSet(viewsets.GenericViewSet):
         serializer = TaskCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Task erstellen
-        task = serializer.save()
+        # Task erstellen - created_by automatisch setzen
+        task = serializer.save(created_by=request.user)
         
         response_serializer = TaskListSerializer(task)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
@@ -75,3 +76,19 @@ class TaskViewSet(viewsets.GenericViewSet):
         # Response mit nested User-Objekten
         response_serializer = TaskListSerializer(updated_task)
         return Response(response_serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        task = self.get_object()
+        
+        is_creator = task.created_by == request.user
+        is_board_owner = task.board.owner == request.user
+        
+        if not (is_creator or is_board_owner):
+            return Response(
+                {'detail': 'Only the task creator or board owner can delete tasks.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        task.delete()
+        
+        return Response(status=status.HTTP_204_NO_CONTENT)

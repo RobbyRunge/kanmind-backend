@@ -13,7 +13,7 @@ class TaskListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'status', 'priority',
+        fields = ['id', 'board', 'title', 'description', 'status', 'priority',
                   'assignee', 'reviewer', 'due_date', 'comments_count']
 
     def get_comments_count(self, obj):
@@ -125,3 +125,8 @@ class TaskUpdateSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
+    
+class TaskDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = []
