@@ -5,7 +5,7 @@ from .models import Board
 
 @admin.register(Board)
 class BoardAdmin(admin.ModelAdmin):
-    list_display = ['title', 'owner', 'get_member_count']
+    list_display = ['title', 'id', 'owner', 'get_member_count']
     search_fields = ['title']
     list_filter = ['owner']
     filter_horizontal = ['members']
