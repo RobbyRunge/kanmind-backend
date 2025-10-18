@@ -445,7 +445,7 @@ This project is part of a Developer Academy course.
 
 ## 👥 Contact
 
-For questions or support, please contact the project maintainer.
+For questions or support, please me.
 
 ---
 
