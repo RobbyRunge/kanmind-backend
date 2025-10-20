@@ -238,6 +238,7 @@ class TaskViewSet(viewsets.GenericViewSet):
         URL Pattern: /api/tasks/{task_id}/comments/{comment_id}/
         
         Validates:
+        - Task exists
         - Comment exists
         - Comment belongs to the specified task
         - User is the comment author
@@ -245,9 +246,16 @@ class TaskViewSet(viewsets.GenericViewSet):
         Returns:
             204: Comment deleted successfully
             403: User is not the comment author
-            404: Comment not found or doesn't belong to task
+            404: Task or comment not found or doesn't belong to task
         """
-        task = self.get_object()
+        # Validate task exists first (without permission check)
+        try:
+            task = Task.objects.get(id=pk)
+        except Task.DoesNotExist:
+            return Response(
+                {'detail': 'Task not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         # Validate comment exists
         try:
