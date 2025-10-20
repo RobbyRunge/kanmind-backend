@@ -66,7 +66,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     Returns:
     - Created user account with token
     
-    Used for: POST /api/auth/register/
+    Used for: POST /api/register/
     """
     repeated_password = serializers.CharField(write_only=True)
     email = serializers.EmailField() 
@@ -139,7 +139,7 @@ class LoginSerializer(serializers.Serializer):
     
     Note: Login is email-based, not username-based.
     
-    Used for: POST /api/auth/login/
+    Used for: POST /api/login/
     """
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)

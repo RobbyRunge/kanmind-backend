@@ -53,7 +53,7 @@ class RegistrationView(APIView):
     - Generates authentication token
     - Returns user data with token
     
-    POST /api/auth/register/
+    POST /api/register/
     Body: {
         "fullname": "John Doe",
         "email": "john@example.com",
@@ -107,8 +107,8 @@ class LoginView(APIView):
     - Validates credentials
     - Retrieves or creates authentication token
     - Returns user data with token
-    
-    POST /api/auth/login/
+
+    POST /api/login/
     Body: {
         "email": "john@example.com",
         "password": "securepass123"
