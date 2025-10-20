@@ -66,15 +66,6 @@ pip install -r requirements.txt
 - djangorestframework 3.16.1
 - djangorestframework-authtoken (included)
 
-### 4. Environment Variables (Optional)
-
-For production, consider creating a `.env` file for sensitive settings:
-```env
-SECRET_KEY=your-secret-key-here
-DEBUG=False
-ALLOWED_HOSTS=localhost,127.0.0.1
-```
-
 ## 🗄️ Database Setup
 
 This project uses SQLite by default (`db.sqlite3`). No additional database configuration is required for development.
@@ -133,7 +124,7 @@ All API endpoints require authentication via Token Authentication.
 
 #### Obtain Token
 
-**Endpoint:** `POST /api/auth/login/`
+**Endpoint:** `POST /api/login/`
 
 **Request Body:**
 ```json
@@ -159,7 +150,7 @@ All API endpoints require authentication via Token Authentication.
 
 #### Register New User
 
-**Endpoint:** `POST /api/auth/register/`
+**Endpoint:** `POST /api/register/`
 
 **Request Body:**
 ```json
@@ -250,10 +241,9 @@ curl -X POST http://127.0.0.1:8000/api/tasks/1/comments/ \
 
 ```
 modul-8.1-kanmind/
-├── core/                      # Main project settings
+├── core/                     # Main project settings
 │   ├── settings.py           # Django configuration
-│   ├── urls.py               # Root URL configuration
-│   └── wsgi.py               # WSGI configuration
+│   └── urls.py               # Root URL configuration
 ├── boards_app/               # Board management
 │   ├── models.py             # Board model
 │   ├── api/
@@ -289,10 +279,9 @@ This project uses **Token Authentication** provided by Django REST Framework.
 
 ### How It Works
 
-1. **Register** a new user via `/api/auth/register/`
-2. **Login** to receive an authentication token via `/api/auth/login/`
+1. **Register** a new user via `/api/register/`
+2. **Login** to receive an authentication token via `/api/login/`
 3. **Include the token** in the `Authorization` header for all API requests
-4. **Logout** (optional) via `/api/auth/logout/` to invalidate the token
 
 ### Token Format
 
