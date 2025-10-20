@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
@@ -171,35 +173,41 @@ class BoardViewSet(viewsets.ModelViewSet):
 class EmailCheckAPIView(APIView):
     """
     API endpoint to check if a user exists by email and retrieve basic info.
-    
+
     Used for adding members to boards by searching for users via email.
     Returns the user's ID, email, and full name if found.
-    
-    POST /api/boards/email-check/
-    Body: {"email": "user@example.com"}
-    
+
+    GET /api/email-check/?email=user@example.com
+
     Returns:
         200: User found - returns user data
-        400: Email field missing
+        400: Email field missing or invalid format
+        401: Not authenticated
         404: User with this email does not exist
     """
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
+    def get(self, request):
         """
-        Look up a user by email address.
-        
-        This is used when adding members to a board, allowing users to
-        search for other users by email instead of knowing their user ID.
+        Look up a user by email address provided as query parameter.
+        Example: GET /api/email-check/?email=user@example.com
         """
-        email = request.data.get('email')
-        
+        email = request.query_params.get('email')
+
         if not email:
             return Response(
                 {'email': ['This field is required.']},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            return Response(
+                {'email': ['Invalid email address.']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
