@@ -42,11 +42,17 @@ class BoardViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Filter queryset to only show boards where the user is a member.
+        Return all boards for permission checking.
         
-        This ensures users can only see their own boards in list views.
+        We don't filter here because we want to return 403 (Forbidden)
+        instead of 404 (Not Found) when a user tries to access a board
+        they are not a member of.
         """
-        return self.queryset.filter(members=self.request.user)
+        if self.action == 'list':
+            # Only for list view, filter to show user's boards
+            return self.queryset.filter(members=self.request.user)
+        # For detail views, return all boards to allow proper permission checking
+        return self.queryset.all()
 
     def get_serializer_class(self):
         """
@@ -154,18 +160,18 @@ class BoardViewSet(viewsets.ModelViewSet):
         
         Returns:
             204: Board deleted successfully
-            401: User is not the board owner
-            403: User is not a board member
+            403: User is not the board owner
             404: Board not found
         """
-        if not self.get_object():
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        elif not self.get_object().members.filter(id=request.user.id).exists():
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        elif self.get_object().owner != request.user:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-
         instance = self.get_object()
+        
+        # Check if user is the owner
+        if instance.owner != request.user:
+            return Response(
+                {'detail': 'Only the board owner can delete this board.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
